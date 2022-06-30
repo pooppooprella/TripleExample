@@ -73,9 +73,6 @@ public class HomeController {
 	}
 	
 	
-	
-	
-	
 	/**
 	 * POST통신 Body to String
 	 * @param request

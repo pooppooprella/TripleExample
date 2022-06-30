@@ -231,5 +231,20 @@
     		,DELYN=#{delyn}
     	WHERE REVIEWID=#{reviewId}
     </update>
+	<select id="PointLogSelectResult" resultType="com.ex.triple.reviewvo.PointLog">
+    	SELECT 
+			A.REVIEWID, A.POINTSEQ, A.TOTALPOINT
+		FROM 
+			POINTLOG A
+		INNER JOIN(
+			SELECT 
+				REVIEWID, MAX(POINTSEQ) POINTSEQ 
+			FROM 
+				POINTLOG 
+			GROUP BY REVIEWID
+		)B 
+		ON A.REVIEWID=B.REVIEWID 
+		AND A.POINTSEQ=B.POINTSEQ
+    </select>
 	
 </mapper>

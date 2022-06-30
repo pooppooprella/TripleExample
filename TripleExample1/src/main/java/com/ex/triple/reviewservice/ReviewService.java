@@ -226,5 +226,11 @@ public class ReviewService {
 		
 	}
 	
+	//-------------------------------------------
+	//포인트 조회
+	//-------------------------------------------
+	public List<PointLog> pointview() {
+		return reviewDao.selectPointLogResult();
+	}
 
 }

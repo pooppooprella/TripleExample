@@ -107,5 +107,11 @@ public class ReviewDao {
 		System.out.println("ATTACH UPDATE reviewid 기준 삭제여부 Y ");
 		return sqlSession.update("REVIEW.AttachUpdateDel", vo);
 	}
-		
+	
+	
+	public List<PointLog> selectPointLogResult() {
+		System.out.println("사용자별 최종포인트 조회 ");
+		return sqlSession.selectList("REVIEW.PointLogSelectResult");
+	}
+	
 }

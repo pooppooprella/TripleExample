@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ex.triple.reviewservice.ReviewService;
+import com.ex.triple.reviewvo.PointLog;
 
 
 @Controller
@@ -28,7 +30,7 @@ public class HomeController {
 	protected ReviewService reviewService;
 	
 	@ResponseBody
-	@RequestMapping(method = RequestMethod.POST, value = "/REVIEW" )
+	@RequestMapping(method = RequestMethod.POST, value = "/events" )
 	public String home(Locale locale, HttpServletRequest request) throws IOException {
 		logger.info("Triple Mileage Task Start Step 1 Start {}.", locale);
 		String body = getBody(request);
@@ -39,6 +41,21 @@ public class HomeController {
 		return reviewService.review(body);
 	}
 	
+	@ResponseBody
+	@RequestMapping(method = RequestMethod.POST, value = "/pointview" )
+	public String pointview(Locale locale, HttpServletRequest request) throws IOException {
+		logger.info("Triple Mileage Task Start Step 1 Start {}.", locale);
+		StringBuffer sb = new StringBuffer();
+		
+		List<PointLog> pointLogList = reviewService.pointview();
+		for (int i = 0; i < pointLogList.size(); i++) {
+			sb.append("\n");
+			sb.append("["+pointLogList.get(i).getReviewId()+"] => ["+pointLogList.get(i).getTotalpoint()+"]");
+		}
+		
+		logger.info("Triple Mileage Task Start Step 1 End {}.", locale);
+		return sb.toString();
+	}
 	
 	
 	

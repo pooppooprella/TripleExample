@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="REVIEW">
+
+<!--SELECT -->
+
+    <select id="ReviewSelect" parameterType="com.ex.triple.reviewvo.Review" resultType="com.ex.triple.reviewvo.Review">
+		SELECT 
+			REVIEWID
+			,USERID
+			,TYPE
+			,ACTION
+			,CONTENT
+			,PLACEID
+			,CREDT
+			,UPTDT 
+		FROM REVIEW
+		WHERE PLACEID=#{placeId}
+    </select>
+
+    <select id="ReviewSelectDup" parameterType="com.ex.triple.reviewvo.Review" resultType="com.ex.triple.reviewvo.Review">
+		SELECT 
+			REVIEWID
+			,USERID
+			,TYPE
+			,ACTION
+			,CONTENT
+			,PLACEID
+			,CREDT
+			,UPTDT 
+		FROM REVIEW
+		WHERE PLACEID=#{placeId}
+		AND USERID=#{userId}
+		AND DELYN='N'
+    </select>
+    
+    <select id="ReviewSelectOne" parameterType="com.ex.triple.reviewvo.Review" resultType="com.ex.triple.reviewvo.Review">
+		SELECT 
+			REVIEWID
+			,USERID
+			,TYPE
+			,ACTION
+			,CONTENT
+			,PLACEID
+			,CREDT
+			,UPTDT 
+		FROM REVIEW
+		WHERE REVIEWID=#{reviewId}
+		limit 1
+    </select>
+    <select id="AttachSelect" parameterType="com.ex.triple.reviewvo.Attach" resultType="com.ex.triple.reviewvo.Attach">
+		SELECT 
+			REVIEWID
+			,ATTACHEDPHOTOID
+			,CREDT
+			,UPTDT
+			,USERID
+			,DELYN
+		FROM ATTACH
+		WHERE REVIEWID=#{reviewId}
+		AND DELYN='N'
+    </select>
+    <select id="PointLogSelect" parameterType="com.ex.triple.reviewvo.PointLog" resultType="com.ex.triple.reviewvo.PointLog">
+		SELECT 
+			REVIEWID
+			,USERID
+			,TYPE
+			,ADDPOINT1
+			,ADDPOINT2
+			,ADDPOINT3
+			,TOTALPOINT
+			,CREDT
+			,UPTDT
+		FROM REVIEW
+		WHERE REVIEWID=#{reviewId}
+    </select>
+    <select id="PointLogSelectOne" parameterType="com.ex.triple.reviewvo.PointLog" resultType="com.ex.triple.reviewvo.PointLog">
+		SELECT 
+			REVIEWID
+			,USERID
+			,POINTSEQ
+			,TYPE
+			,ADDPOINT1
+			,ADDPOINT2
+			,ADDPOINT3
+			,TOTALPOINT
+			,CREDT
+			,UPTDT
+		FROM POINTLOG
+		WHERE USERID=#{userId}
+		ORDER BY POINTSEQ DESC LIMIT 1
+    </select>
+    <select id="PointLogSelectOneFirst" parameterType="com.ex.triple.reviewvo.PointLog" resultType="com.ex.triple.reviewvo.PointLog">
+		SELECT 
+			REVIEWID
+			,USERID
+			,POINTSEQ
+			,TYPE
+			,ADDPOINT1
+			,ADDPOINT2
+			,ADDPOINT3
+			,TOTALPOINT
+			,CREDT
+			,UPTDT
+		FROM POINTLOG
+		WHERE USERID=#{userId}
+		ORDER BY POINTSEQ ASC LIMIT 1
+    </select>
+    
+
+<!-- INSERT -->
+    <insert id="ReviewInsert" parameterType="com.ex.triple.reviewvo.Review">
+		INSERT INTO REVIEW(
+			REVIEWID
+			,USERID
+			,TYPE
+			,ACTION
+			,CONTENT
+			,PLACEID
+			,CREDT
+			,UPTDT
+		)VALUES(
+			#{reviewId}
+			,#{userId}
+			,#{type}
+			,#{action}
+			,#{content}
+			,#{placeId}
+			,CURRENT_TIMESTAMP
+			,CURRENT_TIMESTAMP
+		)
+    </insert>
+    
+    <insert id="AttachInsert" parameterType="com.ex.triple.reviewvo.Attach">
+		INSERT INTO ATTACH(
+			REVIEWID
+			,ATTACHEDPHOTOID
+			,CREDT
+			,UPTDT
+			,USERID
+		)VALUES(
+			#{reviewId}
+			,#{attachedphotoid}
+			,CURRENT_TIMESTAMP
+			,CURRENT_TIMESTAMP
+			,#{userId}
+		)
+    </insert>
+    
+    <insert id="PointLogInsert" parameterType="com.ex.triple.reviewvo.PointLog">
+		INSERT INTO POINTLOG(
+			REVIEWID
+			,USERID
+			,POINTSEQ
+			,TYPE
+			,ADDPOINT1
+			,ADDPOINT2
+			,ADDPOINT3
+			,TOTALPOINT
+			,CREDT
+			,UPTDT
+		)VALUES(
+			#{reviewId}
+			,#{userId}
+			,(select A.pointseq from (select IFNULL(max(pointseq), 0)+1 as pointseq from pointlog where userId=#{userId}) A)
+			,#{type}
+			,#{addpoint1}
+			,#{addpoint2}
+			,#{addpoint3}
+			,IFNULL(
+				((select  C.totalpoint  from(
+					select @ROWNUM :=@ROWNUM+1 as ROWNUM, A.* from(
+						(select totalpoint
+							from pointlog 
+							where userid=#{userId}
+							order by pointseq desc
+						) A
+						,(
+							SELECT @ROWNUM := 0
+						) B
+					) 
+				) C where C.ROWNUM=1)+addpoint1+addpoint2+addpoint3), #{addpoint1}+#{addpoint2}+#{addpoint3}
+			)
+			,CURRENT_TIMESTAMP
+			,CURRENT_TIMESTAMP
+		)
+    </insert>
+
+	<insert id="AttachInsertOrUpdate" parameterType="com.ex.triple.reviewvo.Attach">
+		INSERT INTO ATTACH(
+			REVIEWID
+			,ATTACHEDPHOTOID
+			,CREDT
+			,UPTDT
+			,USERID
+			,DELYN
+		)VALUES(
+			#{reviewId}
+			,#{attachedphotoid}
+			,CURRENT_TIMESTAMP
+			,CURRENT_TIMESTAMP
+			,#{userId}
+			,'N'
+		)
+		ON DUPLICATE KEY
+		UPDATE UPTDT=CURRENT_TIMESTAMP, DELYN='N'
+    </insert>
+    
+    <insert id="AttachUpdateDel" parameterType="com.ex.triple.reviewvo.Attach">
+    	UPDATE ATTACH
+    	SET DELYN='Y'
+    		,UPTDT = CURRENT_TIMESTAMP
+    	WHERE REVIEWID=#{reviewId}
+    </insert>
+    
+    <!-- update -->
+    <update id="ReviewUpdate" parameterType="com.ex.triple.reviewvo.Review">
+    	UPDATE REVIEW 
+    	SET
+    		CONTENT = #{content}
+    		,UPTDT = CURRENT_TIMESTAMP
+    		,DELYN=#{delyn}
+    	WHERE REVIEWID=#{reviewId}
+    </update>
+    <update id="AttachUpdate" parameterType="com.ex.triple.reviewvo.Attach">
+    	UPDATE ATTACH 
+    	SET
+    		UPTDT = CURRENT_TIMESTAMP
+    		,DELYN=#{delyn}
+    	WHERE REVIEWID=#{reviewId}
+    </update>
+	
+</mapper>

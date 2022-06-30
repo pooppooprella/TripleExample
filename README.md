@@ -2,6 +2,9 @@
 
 SpringFrameWork 를 사용하였습니다.
 ApacheTomcat 을 사용하였습니다.
+Mysql 8.* 을 사용하였습니다.
+root-context.xml 파일 DB주소, 및 경로 설정하여 ddl 로 테이블 생성후 테스트가 가능합니다.
+테이블 DDL 1.attach 2.review 3pointlog 문저 밑에 있습니다.
 
 
 테스트방법
@@ -29,3 +32,51 @@ URL 입력시 포인트가조회되어 화면에 표출됩니다.
 	
 	action값을 ADD, MOD, DELETE 로 변경하여 사용합니다.
 	reviewId, attachedPhotoIds, userId, placeId 를 변경하여 사용합니다.
+
+테이블 DDL 입니다.
+
+CREATE TABLE `attach` (
+  `attachedphotoid` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '첨부파일',
+  `userid` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '사용자아이디',
+  `reviewid` varchar(36) NOT NULL COMMENT '리뷰아이디',
+  `credt` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '생성일자',
+  `uptdt` date DEFAULT NULL COMMENT '수정일자',
+  `delyn` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'N' COMMENT '삭제여부YN',
+  UNIQUE KEY `attachedphotoid` (`attachedphotoid`),
+  KEY `attach_reviewid_IDX` (`attachedphotoid`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='첨부파일'
+;
+
+
+CREATE TABLE `pointlog` (
+  `reviewid` varchar(36) NOT NULL COMMENT '리뷰아이디',
+  `pointseq` bigint NOT NULL COMMENT '일련번호',
+  `userid` varchar(36) DEFAULT NULL COMMENT '사용자아이디',
+  `type` varchar(10) DEFAULT NULL COMMENT 'REVIEW',
+  `addpoint1` bigint DEFAULT NULL COMMENT '추가포인트 최초',
+  `addpoint2` bigint DEFAULT NULL COMMENT '추가포인트 첨부파일',
+  `addpoint3` bigint DEFAULT NULL COMMENT '추가포인트 내용 1자이상',
+  `totalpoint` bigint DEFAULT NULL COMMENT '최종금액',
+  `credt` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '생성일자',
+  `uptdt` date DEFAULT NULL COMMENT '수정일자',
+  UNIQUE KEY `reviewid` (`reviewid`,`pointseq`,`userid`),
+  KEY `pointlog_userid_IDX` (`userid`) USING BTREE,
+  KEY `pointlog_reviewid_IDX` (`reviewid`) USING BTREE,
+  KEY `pointlog_pointseq_IDX` (`pointseq`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='포인트로그'
+;
+
+CREATE TABLE `review` (
+  `reviewid` varchar(36) NOT NULL COMMENT '리뷰아이디',
+  `type` varchar(10) DEFAULT NULL COMMENT 'REVIEW',
+  `action` varchar(10) DEFAULT NULL COMMENT 'ADD,MOD,DELETE',
+  `content` varchar(100) DEFAULT NULL COMMENT '내용',
+  `placeid` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '리뷰작성장소',
+  `credt` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '생성일자',
+  `uptdt` datetime DEFAULT NULL COMMENT '수정일자',
+  `delyn` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'N' COMMENT '삭제여부YN',
+  `userid` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '사용자아이디',
+  UNIQUE KEY `reviewid` (`reviewid`),
+  KEY `review_reviewid_IDX` (`reviewid`,`type`,`action`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='리뷰'
+;

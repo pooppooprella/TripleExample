@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -29,6 +30,16 @@ public class HomeController {
 	@Autowired
 	protected ReviewService reviewService;
 	
+//	
+	/** 리뷰등록,수정,삭제 관리 POST 
+	 * http://localhost:8080/events
+	 * @param locale
+	 * @param post : 과제로 받은 Json 형태의 값을 body 에 넣어서 테스트합니다.
+	 * 				postman 을 사용하여 진행하였습니다.
+	 * 				Body-raw 부분 에 넣고 진행하였습니다. 
+	 * @return
+	 * @throws IOException
+	 */
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.POST, value = "/events" )
 	public String home(Locale locale, HttpServletRequest request) throws IOException {
@@ -41,21 +52,26 @@ public class HomeController {
 		return reviewService.review(body);
 	}
 	
-	@ResponseBody
-	@RequestMapping(method = RequestMethod.POST, value = "/pointview" )
-	public String pointview(Locale locale, HttpServletRequest request) throws IOException {
+	/** 리뷰 조회 관리 GET
+	 * http://localhost:8080/pointview
+	 * @param locale
+	 * @param request
+	 * @param model
+	 * @return
+	 * @throws IOException
+	 */
+	@RequestMapping(method = RequestMethod.GET, value = "/pointview" )
+	public String pointview(Locale locale, HttpServletRequest request, Model model) throws IOException {
 		logger.info("Triple Mileage Task Start Step 1 Start {}.", locale);
 		StringBuffer sb = new StringBuffer();
 		
 		List<PointLog> pointLogList = reviewService.pointview();
-		for (int i = 0; i < pointLogList.size(); i++) {
-			sb.append("\n");
-			sb.append("["+pointLogList.get(i).getReviewId()+"] => ["+pointLogList.get(i).getTotalpoint()+"]");
-		}
+		model.addAttribute("list", pointLogList);
 		
 		logger.info("Triple Mileage Task Start Step 1 End {}.", locale);
-		return sb.toString();
+		return "home";
 	}
+	
 	
 	
 	

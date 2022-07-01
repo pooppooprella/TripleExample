@@ -4,10 +4,11 @@ SpringFrameWork 를 사용하였습니다.
 ApacheTomcat 을 사용하였습니다.
 Mysql 8.* 을 사용하였습니다.
 root-context.xml 파일 DB주소, 및 경로 설정하여 ddl 로 테이블 생성후 테스트가 가능합니다.
-테이블 DDL 1.attach 2.review 3pointlog 문저 밑에 있습니다.
+테이블 DDL 1.attach 2.pointlog 3.review 문서 하단에 있습니다.
 
 
 테스트방법
+
 
 1. 포인트조회
 크롬 : http://localhost:8080/pointview
